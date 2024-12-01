@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watch Ads - Interactive Animations</title>
-    
-    <!-- Particle.js -->
+
+    <!-- Particle.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    
-    <!-- Toastr.js for notifications -->
+
+    <!-- Toastr JS CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <!-- Ad Script -->
-    <script src='//niphaumeenses.net/vignette.min.js' data-zone='8583366' data-sdk='show_8583366'></script>
 
     <style>
         body {
@@ -24,12 +21,9 @@
             min-height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            transition: background 0.3s, color 0.3s;
             position: relative;
             overflow: hidden;
         }
-        .light-mode { background: #f4f4f9; color: #333; }
-        .dark-mode { background: #121212; color: #fff; }
 
         .container {
             text-align: center;
@@ -40,7 +34,11 @@
             max-width: 500px;
             backdrop-filter: blur(10px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            z-index: 10;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
         }
 
         .btn {
@@ -51,23 +49,13 @@
             color: white;
             background: linear-gradient(135deg, #ff00ff, #ff8800);
             border-radius: 50px;
-            box-shadow: 0 4px 10px rgba(255, 0, 255, 0.5);
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
         }
-        .btn:hover { transform: translateY(-5px); }
 
-        .mode-toggle-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #333;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1.2rem;
-            border-radius: 5px;
-            cursor: pointer;
+        .btn:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(135deg, #ff8800, #ff00ff);
         }
 
         .progress-container {
@@ -86,12 +74,17 @@
             transition: width 1s ease-in-out;
         }
 
-        #particles-js { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
     </style>
 </head>
-<body class="dark-mode">
-
-<button class="mode-toggle-btn" onclick="toggleMode()">Switch to Light Mode</button>
+<body>
 
 <div class="container">
     <h2>Watch Ads and Earn Rewards!</h2>
@@ -99,7 +92,10 @@
     <button id="showAdButton2" class="btn">Show Ad 2</button>
     <button id="showAdButton3" class="btn">Show Ad 3</button>
     <button id="showAdButton4" class="btn">Show Ad 4</button>
-    <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
+
+    <div class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
 </div>
 
 <div id="particles-js"></div>
@@ -109,47 +105,53 @@
         "particles": {
             "number": { "value": 150, "density": { "enable": true, "value_area": 800 } },
             "color": { "value": "#ffffff" },
-            "shape": { "type": "circle", "polygon": { "nb_sides": 5 } },
-            "opacity": { "value": 0.8 },
-            "size": { "value": 8, "random": true },
+            "shape": { "type": "circle" },
+            "opacity": { "value": 0.5 },
+            "size": { "value": 5, "random": true },
             "line_linked": { "enable": false },
             "move": { "enable": true, "speed": 2 }
-        },
-        "interactivity": { "events": { "onclick": { "enable": true, "mode": "push" } } }
+        }
     });
 
-    function toggleMode() {
-        const body = document.body;
-        const button = document.querySelector('.mode-toggle-btn');
-        if (body.classList.contains('dark-mode')) {
-            body.classList.replace('dark-mode', 'light-mode');
-            button.textContent = 'Switch to Dark Mode';
-        } else {
-            body.classList.replace('light-mode', 'dark-mode');
-            button.textContent = 'Switch to Light Mode';
-        }
-    }
-
     function showAd(buttonId) {
-        show_8583366().then(() => {
-            toastr.success(`Ad watched on ${buttonId}!`, 'Reward Earned');
-            updateProgressBar();
-        }).catch(() => toastr.error('Error showing ad', 'Try Again'));
+        // Inject the ad script
+        const adScript = document.createElement('script');
+        adScript.src = '//niphaumeenses.net/vignette.min.js';
+        adScript.dataset.zone = '8583366';
+        adScript.onload = () => {
+            // Call the ad display function after script load
+            if (typeof show_8583366 === "function") {
+                show_8583366().then(() => {
+                    toastr.success(`You have watched the ad on ${buttonId} and earned a reward!`, 'Congratulations');
+                    updateProgressBar();
+                }).catch(() => {
+                    toastr.error('Failed to load the ad. Please try again.', 'Error');
+                });
+            }
+        };
+        adScript.onerror = () => {
+            toastr.error('Failed to load the ad script.', 'Error');
+        };
+        document.body.appendChild(adScript);
     }
 
     function updateProgressBar() {
         const progressBar = document.getElementById('progressBar');
         let width = 0;
         const interval = setInterval(() => {
-            if (width >= 100) clearInterval(interval);
-            else progressBar.style.width = `${++width}%`;
-        }, 100);
+            if (width >= 100) {
+                clearInterval(interval);
+            } else {
+                width++;
+                progressBar.style.width = width + '%';
+            }
+        }, 50);
     }
 
-    document.getElementById('showAdButton1').onclick = () => showAd('Button 1');
-    document.getElementById('showAdButton2').onclick = () => showAd('Button 2');
-    document.getElementById('showAdButton3').onclick = () => showAd('Button 3');
-    document.getElementById('showAdButton4').onclick = () => showAd('Button 4');
+    document.getElementById('showAdButton1').addEventListener('click', () => showAd('Show Ad 1'));
+    document.getElementById('showAdButton2').addEventListener('click', () => showAd('Show Ad 2'));
+    document.getElementById('showAdButton3').addEventListener('click', () => showAd('Show Ad 3'));
+    document.getElementById('showAdButton4').addEventListener('click', () => showAd('Show Ad 4'));
 </script>
 
 </body>
