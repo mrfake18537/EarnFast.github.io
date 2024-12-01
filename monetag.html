@@ -129,7 +129,7 @@
                 });
             }
         };
-        adScript.onerror = () => {
+        adScript.onerror = (buttonId) => {
             toastr.error('Failed to load the ad script.', 'Error');
         };
         document.body.appendChild(adScript);
@@ -148,10 +148,10 @@
         }, 50);
     }
 
-    document.getElementById('showAdButton1').addEventListener('click', () => showAd('Show Ad 1'));
-    document.getElementById('showAdButton2').addEventListener('click', () => showAd('Show Ad 2'));
-    document.getElementById('showAdButton3').addEventListener('click', () => showAd('Show Ad 3'));
-    document.getElementById('showAdButton4').addEventListener('click', () => showAd('Show Ad 4'));
+    document.getElementById('showAdButton1').addEventListener('click', (buttonId) => showAd('Show Ad 1'));
+    document.getElementById('showAdButton2').addEventListener('click', (buttonId) => showAd('Show Ad 2'));
+    document.getElementById('showAdButton3').addEventListener('click', (buttonId) => showAd('Show Ad 3'));
+    document.getElementById('showAdButton4').addEventListener('click', (buttonId) => showAd('Show Ad 4'));
 </script>
 
 </body>
