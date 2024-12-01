@@ -1,157 +1,146 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watch Ads - Interactive Animations</title>
-
-    <!-- Particle.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-
-    <!-- Toastr JS CDN -->
+    <title>MONETAG  SELF CLICK BY BX..</title>
+    
+   
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    
+    <script src='//niphaumeenses.net/vignette.min.js' data-zone='8583366' data-sdk='show_8583366'></script>
+
+    <!-- POWER BY MR PERFECT -->
 
     <style>
         body {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            position: relative;
-            overflow: hidden;
+            background-color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
         }
-
         .container {
             text-align: center;
-            background: rgba(0, 0, 0, 0.1);
+            background-color: #fff;
             padding: 40px;
-            border-radius: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 500px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
-
         h2 {
-            font-size: 2.2rem;
-            margin-bottom: 20px;
+            font-size: 2rem;
+            margin-bottom: 30px;
         }
-
         .btn {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             padding: 12px 30px;
             margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #007bff;
             border: none;
-            color: white;
-            background: linear-gradient(135deg, #ff00ff, #ff8800);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
         }
-
-        .btn:hover {
+        .btn-primary:hover {
+            background-color: #0056b3;
             transform: translateY(-5px);
-            background: linear-gradient(135deg, #ff8800, #ff00ff);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-
-        .progress-container {
-            width: 100%;
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin-top: 20px;
+        .btn-success {
+            background-color: #28a745;
+            border: none;
         }
-
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: #28a745;
-            border-radius: 5px;
-            transition: width 1s ease-in-out;
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-
-        #particles-js {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+        .btn-warning {
+            background-color: #ffc107;
+            border: none;
+        }
+        .btn-red {
+            background-color: #F44336;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container animate__animated animate__fadeIn">
+    
+ 
     <h2>Watch Ads and Earn Rewards!</h2>
-    <button id="showAdButton1" class="btn">Show Ad 1</button>
-    <button id="showAdButton2" class="btn">Show Ad 2</button>
-    <button id="showAdButton3" class="btn">Show Ad 3</button>
-    <button id="showAdButton4" class="btn">Show Ad 4</button>
-
-    <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
+    <div>
+        <button id="showAdButton1" class="btn btn-primary">Show Ad 1</button>
+        <button id="showAdButton2" class="btn btn-success">Show Ad 2</button>
+        <button id="showAdButton3" class="btn btn-warning">Show Ad 3</button>
+        <button id="showAdButton4" class="btn btn-red">Show Ad 4</button>
     </div>
+    <script type="text/javascript">
+	atOptions = {
+		'key' : 'b6a638c04543878bcc4514278c855cf7',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+
 </div>
 
-<div id="particles-js"></div>
+<!-- Bootstrap JS and dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Toastr JS CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-    particlesJS('particles-js', {
-        "particles": {
-            "number": { "value": 150, "density": { "enable": true, "value_area": 800 } },
-            "color": { "value": "#ffffff" },
-            "shape": { "type": "circle" },
-            "opacity": { "value": 0.5 },
-            "size": { "value": 5, "random": true },
-            "line_linked": { "enable": false },
-            "move": { "enable": true, "speed": 2 }
-        }
+    function showAd(buttonId) {
+        show_8583366().then(() => {
+            // Reward function
+            toastr.success(`You have watched the ad on ${buttonId} and earned a reward!`, 'Congratulations');
+        }).catch((error) => {
+            toastr.error('There was an error displaying the ad.', 'Error');
+            console.error(error);
+        });
+    }
+
+    document.getElementById('showAdButton1').addEventListener('click', function() {
+        showAd('Show Ad 1');
     });
 
-    function showAd(buttonId) {
-        // Inject the ad script
-        const adScript = document.createElement('script');
-        adScript.src = '//niphaumeenses.net/vignette.min.js';
-        adScript.dataset.zone = '8583366';
-        adScript.onload = () => {
-            // Call the ad display function after script load
-            if (typeof show_8583366 === "function") {
-                show_8583366().then(() => {
-                    toastr.success(`You have watched the ad on ${buttonId} and earned a reward!`, 'Congratulations');
-                    updateProgressBar();
-                }).catch(() => {
-                    toastr.error('Failed to load the ad. Please try again.', 'Error');
-                });
-            }
-        };
-        adScript.onerror = (buttonId) => {
-            toastr.error('Failed to load the ad script.', 'Error');
-        };
-        document.body.appendChild(adScript);
-    }
+    document.getElementById('showAdButton2').addEventListener('click', function() {
+        showAd('Show Ad 2');
+    });
 
-    function updateProgressBar() {
-        const progressBar = document.getElementById('progressBar');
-        let width = 0;
-        const interval = setInterval(() => {
-            if (width >= 100) {
-                clearInterval(interval);
-            } else {
-                width++;
-                progressBar.style.width = width + '%';
-            }
-        }, 50);
-    }
-
-    document.getElementById('showAdButton1').addEventListener('click', (buttonId) => showAd('Show Ad 1'));
-    document.getElementById('showAdButton2').addEventListener('click', (buttonId) => showAd('Show Ad 2'));
-    document.getElementById('showAdButton3').addEventListener('click', (buttonId) => showAd('Show Ad 3'));
-    document.getElementById('showAdButton4').addEventListener('click', (buttonId) => showAd('Show Ad 4'));
+    document.getElementById('showAdButton3').addEventListener('click', function() {
+        showAd('Show Ad 3');
+    });
+    document.getElementById('showAdButton4').addEventListener('click', function() {
+        showAd('Show Ad 4');
+    });
 </script>
 
 </body>
