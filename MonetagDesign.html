@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Ads - Interactive Animations</title>
+    <script src='//niphaumeenses.net/vignette.min.js' data-zone='8588979' data-sdk='show_8588979'></script>
+    
+    <!-- Particle.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            transition: background 0.3s, color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Light Mode */
+        body.light-mode {
+            background: #f4f4f9;
+            color: #333;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background: #121212;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            position: relative;
+            padding-bottom: 60px; /* Space for particles below */
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            font-size: 1.3rem;
+            padding: 12px 30px;
+            margin: 10px;
+            border: none;
+            color: white;
+            background: linear-gradient(135deg, #ff00ff, #ff8800);
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(255, 0, 255, 0.5), 0 4px 10px rgba(255, 136, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 0, 255, 0.7), 0 8px 20px rgba(255, 136, 0, 0.7);
+            background: linear-gradient(135deg, #ff8800, #ff00ff);
+        }
+
+        .mode-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .mode-toggle-btn:hover {
+            background: #f39c12;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #28a745;
+            border-radius: 5px;
+            transition: width 1s ease-in-out;
+        }
+
+        /* Particle Background */
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+    </style>
+</head>
+<body class="dark-mode">
+
+<button class="mode-toggle-btn" onclick="toggleMode()">Switch to Light Mode</button>
+
+<div class="container">
+    <h2>Watch Ads and Earn Rewards!</h2>
+    <button id="showAdButton1" class="btn">Show Ad 1</button>
+    <button id="showAdButton2" class="btn">Show Ad 2</button>
+    <button id="showAdButton3" class="btn">Show Ad 3</button>
+    <button id="showAdButton4" class="btn">Show Ad 4</button>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+</div>
+
+<!-- Particles.js Background -->
+<div id="particles-js"></div>
+
+<!-- Toastr JS CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    // Initialize Particles.js
+    particlesJS('particles-js', {
+        "particles": {
+            "number": {
+                "value": 150,  // Increase the number of particles
+                "density": {
+                    "enable": true,
+                    "value_area": 800
+                }
+            },
+            "color": {
+                "value": "#ffffff"
+            },
+            "shape": {
+                "type": "circle",
+                "stroke": {
+                    "width": 0,
+                    "color": "#000000"
+                },
+                "polygon": {
+                    "nb_sides": 5
+                }
+            },
+            "opacity": {
+                "value": 0.8,  // Slightly more opaque for visibility
+                "random": false,
+                "anim": {
+                    "enable": true,
+                    "speed": 1,
+                    "opacity_min": 0.1
+                }
+            },
+            "size": {
+                "value": 10,  // Larger particles for better visibility
+                "random": true,
+                "anim": {
+                    "enable": true,
+                    "speed": 4,
+                    "size_min": 0.1
+                }
+            },
+            "line_linked": {
+                "enable": false
+            },
+            "move": {
+                "enable": true,
+                "speed": 2,
+                "direction": "none",
+                "random": false,
+                "straight": false,
+                "out_mode": "out",
+                "bounce": false,
+                "attract": {
+                    "enable": false,
+                    "rotateX": 600,
+                    "rotateY": 1200
+                }
+            }
+        },
+        "interactivity": {
+            "events": {
+                "onhover": {
+                    "enable": true,
+                    "mode": "repulse"
+                },
+                "onclick": {
+                    "enable": true,
+                    "mode": "push"
+                }
+            },
+            "modes": {
+                "repulse": {
+                    "distance": 100,
+                    "duration": 0.4
+                },
+                "push": {
+                    "particles_nb": 4
+                }
+            }
+        },
+        "retina_detect": true
+    });
+
+    // Dark/Light Mode Toggle
+    function toggleMode() {
+        const body = document.body;
+        const button = document.querySelector('.mode-toggle-btn');
+
+        if (body.classList.contains('dark-mode')) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            button.textContent = 'Switch to Dark Mode';
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            button.textContent = 'Switch to Light Mode';
+        }
+    }
+
+    // Show Ad and Update Progress Bar
+    function showAd(buttonId) {
+        show_8584382().then(() => {
+            toastr.success(`You have watched the ad on ${buttonId} and earned a reward!`, 'Congratulations');
+            updateProgressBar();
+        }).catch((error) => {
+            toastr.error('There was an error displaying the ad.', 'Error');
+            console.error(error);
+        });
+    }
+
+    // Update Progress Bar Function
+    function updateProgressBar() {
+        const progressBar = document.getElementById('progressBar');
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+            } else {
+                width++;
+                progressBar.style.width = width + '%';
+            }
+        }, 100);
+    }
+
+    // Event Listeners for Ad Buttons
+    document.getElementById('showAdButton1').addEventListener('click', function() {
+        showAd('Show Ad 1');
+    });
+
+    document.getElementById('showAdButton2').addEventListener('click', function() {
+        showAd('Show Ad 2');
+    });
+
+    document.getElementById('showAdButton3').addEventListener('click', function() {
+        showAd('Show Ad 3');
+    });
+
+    document.getElementById('showAdButton4').addEventListener('click', function() {
+        showAd('Show Ad 4');
+    });
+</script>
+
+</body
+
+//Gift From GPT And Me @Lofex1
