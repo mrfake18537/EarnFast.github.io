@@ -145,6 +145,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
+
+    function showAd(buttonId) {
+        show_8588979().then(() => {
+            // Reward function
+            toastr.success(`You have watched the ad on ${buttonId} and earned a reward!`, 'Congratulations');
+        }).catch((error) => {
+            toastr.error('There was an error displaying the ad.', 'Error');
+            console.error(error);
+        });
+    }
+
+    document.getElementById('showAdButton1').addEventListener('click', function() {
+        showAd('Show Ad 1');
+    });
+
+    document.getElementById('showAdButton2').addEventListener('click', function() {
+        showAd('Show Ad 2');
+    });
+
+    document.getElementById('showAdButton3').addEventListener('click', function() {
+        showAd('Show Ad 3');
+    });
+    document.getElementById('showAdButton4').addEventListener('click', function() {
+        showAd('Show Ad 4');
+    });
+
     // Initialize Particles.js
     particlesJS('particles-js', {
         "particles": {
@@ -244,16 +270,7 @@
         }
     }
 
-    // Show Ad and Update Progress Bar
-    function showAd(buttonId) {
-        show_8588979().then(() => {
-            toastr.success(`You have watched the ad on ${buttonId} and earned a reward!`, 'Congratulations');
-            updateProgressBar();
-        }).catch((error) => {
-            toastr.error('There was an error displaying the ad.', 'Error');
-            console.error(error);
-        });
-    }
+    
 
     // Update Progress Bar Function
     function updateProgressBar() {
