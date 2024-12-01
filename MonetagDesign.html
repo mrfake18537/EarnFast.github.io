@@ -1,15 +1,20 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watch Ads - Interactive Animations</title>
-    <script src='//niphaumeenses.net/vignette.min.js' data-zone='8588979' data-sdk='show_8588979'></script>
     
+    <!-- Ad Network Script -->
+    <script src="//niphaumeenses.net/vignette.min.js" data-zone="8583366" data-sdk="show_8583366" async></script>
+
     <!-- Particle.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    
+
+    <!-- Toastr JS for Notifications -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <style>
         body {
             display: flex;
@@ -47,7 +52,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             z-index: 10;
             position: relative;
-            padding-bottom: 60px; /* Space for particles below */
+            padding-bottom: 60px;
         }
 
         h2 {
@@ -63,15 +68,7 @@
             color: white;
             background: linear-gradient(135deg, #ff00ff, #ff8800);
             border-radius: 50px;
-            box-shadow: 0 4px 10px rgba(255, 0, 255, 0.5), 0 4px 10px rgba(255, 136, 0, 0.5);
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(255, 0, 255, 0.7), 0 8px 20px rgba(255, 136, 0, 0.7);
-            background: linear-gradient(135deg, #ff8800, #ff00ff);
         }
 
         .mode-toggle-btn {
@@ -80,16 +77,9 @@
             right: 20px;
             background: #333;
             color: #fff;
-            border: none;
             padding: 10px 20px;
-            font-size: 1.2rem;
             border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .mode-toggle-btn:hover {
-            background: #f39c12;
         }
 
         /* Progress Bar */
@@ -109,7 +99,6 @@
             transition: width 1s ease-in-out;
         }
 
-        /* Particle Background */
         #particles-js {
             position: absolute;
             top: 0;
@@ -118,7 +107,6 @@
             height: 100%;
             z-index: -1;
         }
-
     </style>
 </head>
 <body class="dark-mode">
@@ -129,8 +117,6 @@
     <h2>Watch Ads and Earn Rewards!</h2>
     <button id="showAdButton1" class="btn">Show Ad 1</button>
     <button id="showAdButton2" class="btn">Show Ad 2</button>
-    <button id="showAdButton3" class="btn">Show Ad 3</button>
-    <button id="showAdButton4" class="btn">Show Ad 4</button>
 
     <!-- Progress Bar -->
     <div class="progress-container">
@@ -138,174 +124,62 @@
     </div>
 </div>
 
-<!-- Particles.js Background -->
 <div id="particles-js"></div>
 
-<!-- Toastr JS CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
 <script>
-
-    function showAd(buttonId) {
-        show_8588979().then(() => {
-            // Reward function
-            toastr.success(`You have watched the ad on ${buttonId} and earned a reward!`, 'Congratulations');
-        }).catch((error) => {
-            toastr.error('There was an error displaying the ad.', 'Error');
-            console.error(error);
-        });
-    }
-
-    document.getElementById('showAdButton1').addEventListener('click', function() {
-        showAd('Show Ad 1');
-    });
-
-    document.getElementById('showAdButton2').addEventListener('click', function() {
-        showAd('Show Ad 2');
-    });
-
-    document.getElementById('showAdButton3').addEventListener('click', function() {
-        showAd('Show Ad 3');
-    });
-    document.getElementById('showAdButton4').addEventListener('click', function() {
-        showAd('Show Ad 4');
-    });
-
     // Initialize Particles.js
     particlesJS('particles-js', {
         "particles": {
             "number": {
-                "value": 150,  // Increase the number of particles
-                "density": {
-                    "enable": true,
-                    "value_area": 800
-                }
+                "value": 150,
+                "density": { "enable": true, "value_area": 800 }
             },
-            "color": {
-                "value": "#ffffff"
-            },
-            "shape": {
-                "type": "circle",
-                "stroke": {
-                    "width": 0,
-                    "color": "#000000"
-                },
-                "polygon": {
-                    "nb_sides": 5
-                }
-            },
-            "opacity": {
-                "value": 0.8,  // Slightly more opaque for visibility
-                "random": false,
-                "anim": {
-                    "enable": true,
-                    "speed": 1,
-                    "opacity_min": 0.1
-                }
-            },
-            "size": {
-                "value": 10,  // Larger particles for better visibility
-                "random": true,
-                "anim": {
-                    "enable": true,
-                    "speed": 4,
-                    "size_min": 0.1
-                }
-            },
-            "line_linked": {
-                "enable": false
-            },
-            "move": {
-                "enable": true,
-                "speed": 2,
-                "direction": "none",
-                "random": false,
-                "straight": false,
-                "out_mode": "out",
-                "bounce": false,
-                "attract": {
-                    "enable": false,
-                    "rotateX": 600,
-                    "rotateY": 1200
-                }
-            }
+            "color": { "value": "#ffffff" },
+            "opacity": { "value": 0.8 },
+            "size": { "value": 10, "random": true },
+            "move": { "enable": true, "speed": 2 }
         },
         "interactivity": {
-            "events": {
-                "onhover": {
-                    "enable": true,
-                    "mode": "repulse"
-                },
-                "onclick": {
-                    "enable": true,
-                    "mode": "push"
-                }
-            },
-            "modes": {
-                "repulse": {
-                    "distance": 100,
-                    "duration": 0.4
-                },
-                "push": {
-                    "particles_nb": 4
-                }
-            }
+            "events": { "onhover": { "enable": true, "mode": "repulse" } }
         },
         "retina_detect": true
     });
 
-    // Dark/Light Mode Toggle
+    // Toggle Dark/Light Mode
     function toggleMode() {
         const body = document.body;
         const button = document.querySelector('.mode-toggle-btn');
+        body.classList.toggle('dark-mode');
+        body.classList.toggle('light-mode');
+        button.textContent = body.classList.contains('dark-mode') ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    }
 
-        if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            body.classList.add('light-mode');
-            button.textContent = 'Switch to Dark Mode';
+    // Show Ads and Progress
+    function showAd(adId) {
+        if (typeof show_8583366 === 'function') {
+            show_8583366().then(() => {
+                toastr.success(`Ad ${adId} watched!`);
+                updateProgressBar();
+            }).catch((error) => {
+                toastr.error('Error displaying the ad.');
+                console.error(error);
+            });
         } else {
-            body.classList.remove('light-mode');
-            body.classList.add('dark-mode');
-            button.textContent = 'Switch to Light Mode';
+            toastr.error('Ad script not loaded!');
         }
     }
 
-    
-
-    // Update Progress Bar Function
     function updateProgressBar() {
         const progressBar = document.getElementById('progressBar');
-        let width = 0;
-        const interval = setInterval(() => {
-            if (width >= 100) {
-                clearInterval(interval);
-            } else {
-                width++;
-                progressBar.style.width = width + '%';
-            }
-        }, 100);
+        let width = parseInt(progressBar.style.width) || 0;
+        if (width < 100) width += 25;
+        progressBar.style.width = width + '%';
     }
 
-    // Event Listeners for Ad Buttons
-    document.getElementById('showAdButton1').addEventListener('click', function() {
-        showAd('Show Ad 1');
-    });
-
-    document.getElementById('showAdButton2').addEventListener('click', function() {
-        showAd('Show Ad 2');
-    });
-
-    document.getElementById('showAdButton3').addEventListener('click', function() {
-        showAd('Show Ad 3');
-    });
-
-    document.getElementById('showAdButton4').addEventListener('click', function() {
-        showAd('Show Ad 4');
-    });
+    // Event Listeners
+    document.getElementById('showAdButton1').addEventListener('click', () => showAd(1));
+    document.getElementById('showAdButton2').addEventListener('click', () => showAd(2));
 </script>
 
 </body>
-
-//Gift From GPT And Me TG @Lofex1
-
 </html>
