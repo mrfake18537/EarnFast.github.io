@@ -255,20 +255,6 @@
         });
     }
 
-    // Update Progress Bar Function
-    function updateProgressBar() {
-        const progressBar = document.getElementById('progressBar');
-        let width = 0;
-        const interval = setInterval(() => {
-            if (width >= 100) {
-                clearInterval(interval);
-            } else {
-                width++;
-                progressBar.style.width = width + '%';
-            }
-        }, 100);
-    }
-
     // Event Listeners for Ad Buttons
     document.getElementById('showAdButton1').addEventListener('click', function() {
         showAd('Show Ad 1');
