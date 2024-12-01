@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watch Ads - Interactive Animations</title>
-
-    <!-- Ad Network Script -->
-    <script src='//niphaumeenses.net/vignette.min.js' data-zone='8583366' data-sdk='show_8583366'></script>
-
-    <!-- Particle.js CDN -->
+    
+    <!-- Particle.js -->
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-
-    <!-- Toastr JS for Notifications -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <!-- Toastr.js for notifications -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Ad Script -->
+    <script src='//niphaumeenses.net/vignette.min.js' data-zone='8583366' data-sdk='show_8583366'></script>
 
     <style>
         body {
@@ -28,17 +28,8 @@
             position: relative;
             overflow: hidden;
         }
-
-        /* Dark and Light Mode Styles */
-        body.light-mode {
-            background: #f4f4f9;
-            color: #333;
-        }
-
-        body.dark-mode {
-            background: #121212;
-            color: #fff;
-        }
+        .light-mode { background: #f4f4f9; color: #333; }
+        .dark-mode { background: #121212; color: #fff; }
 
         .container {
             text-align: center;
@@ -50,12 +41,6 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             z-index: 10;
-            position: relative;
-        }
-
-        h2 {
-            font-size: 2.2rem;
-            margin-bottom: 20px;
         }
 
         .btn {
@@ -66,6 +51,22 @@
             color: white;
             background: linear-gradient(135deg, #ff00ff, #ff8800);
             border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(255, 0, 255, 0.5);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn:hover { transform: translateY(-5px); }
+
+        .mode-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 5px;
             cursor: pointer;
         }
 
@@ -82,28 +83,10 @@
             height: 100%;
             background: #28a745;
             border-radius: 5px;
-            transition: width 0.5s ease;
+            transition: width 1s ease-in-out;
         }
 
-        .mode-toggle-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #333;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        #particles-js {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
+        #particles-js { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
     </style>
 </head>
 <body class="dark-mode">
@@ -112,67 +95,61 @@
 
 <div class="container">
     <h2>Watch Ads and Earn Rewards!</h2>
-    <button id="showAdButton1" class="btn" onclick="showAd(1)">Show Ad 1</button>
-    <button id="showAdButton2" class="btn" onclick="showAd(2)">Show Ad 2</button>
-    <button id="showAdButton3" class="btn" onclick="showAd(3)">Show Ad 3</button>
-    <button id="showAdButton4" class="btn" onclick="showAd(4)">Show Ad 4</button>
-
-    <!-- Progress Bar -->
-    <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
-    </div>
+    <button id="showAdButton1" class="btn">Show Ad 1</button>
+    <button id="showAdButton2" class="btn">Show Ad 2</button>
+    <button id="showAdButton3" class="btn">Show Ad 3</button>
+    <button id="showAdButton4" class="btn">Show Ad 4</button>
+    <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
 </div>
 
 <div id="particles-js"></div>
 
 <script>
-    // Initialize Particles.js
     particlesJS('particles-js', {
-        particles: {
-            number: { value: 100 },
-            size: { value: 5 },
-            move: { speed: 2 },
-            line_linked: { enable: false }
+        "particles": {
+            "number": { "value": 150, "density": { "enable": true, "value_area": 800 } },
+            "color": { "value": "#ffffff" },
+            "shape": { "type": "circle", "polygon": { "nb_sides": 5 } },
+            "opacity": { "value": 0.8 },
+            "size": { "value": 8, "random": true },
+            "line_linked": { "enable": false },
+            "move": { "enable": true, "speed": 2 }
         },
-        interactivity: {
-            events: { onhover: { enable: true, mode: "repulse" } }
-        }
+        "interactivity": { "events": { "onclick": { "enable": true, "mode": "push" } } }
     });
 
-    // Dark/Light Mode Toggle
     function toggleMode() {
-        document.body.classList.toggle('dark-mode');
-        document.body.classList.toggle('light-mode');
-        document.querySelector('.mode-toggle-btn').textContent =
-            document.body.classList.contains('dark-mode') ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-    }
-
-    // Show Ad Function
-    function showAd(adId) {
-        if (typeof show_8583366 === 'function') {
-            show_8583366().then(() => {
-                toastr.success(`Ad ${adId} watched!`);
-                updateProgressBar();
-            }).catch(() => {
-                toastr.error('Ad failed to load. Please try again.');
-            });
+        const body = document.body;
+        const button = document.querySelector('.mode-toggle-btn');
+        if (body.classList.contains('dark-mode')) {
+            body.classList.replace('dark-mode', 'light-mode');
+            button.textContent = 'Switch to Dark Mode';
         } else {
-            toastr.error('Ad script not loaded. Please refresh.');
+            body.classList.replace('light-mode', 'dark-mode');
+            button.textContent = 'Switch to Light Mode';
         }
     }
 
-    // Update Progress Bar Function
+    function showAd(buttonId) {
+        show_8583366().then(() => {
+            toastr.success(`Ad watched on ${buttonId}!`, 'Reward Earned');
+            updateProgressBar();
+        }).catch(() => toastr.error('Error showing ad', 'Try Again'));
+    }
+
     function updateProgressBar() {
         const progressBar = document.getElementById('progressBar');
-        let currentWidth = parseInt(progressBar.style.width) || 0;
-        if (currentWidth < 100) {
-            currentWidth += 25; // Increment by 25%
-            progressBar.style.width = currentWidth + '%';
-        }
-        if (currentWidth >= 100) {
-            toastr.success('All ads watched! Reward unlocked.');
-        }
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) clearInterval(interval);
+            else progressBar.style.width = `${++width}%`;
+        }, 100);
     }
+
+    document.getElementById('showAdButton1').onclick = () => showAd('Button 1');
+    document.getElementById('showAdButton2').onclick = () => showAd('Button 2');
+    document.getElementById('showAdButton3').onclick = () => showAd('Button 3');
+    document.getElementById('showAdButton4').onclick = () => showAd('Button 4');
 </script>
 
 </body>
